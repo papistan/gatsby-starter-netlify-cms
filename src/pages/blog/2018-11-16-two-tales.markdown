@@ -1,0 +1,104 @@
+---
+author: Kimh
+comments: false
+date: 2018-11-16 17:28:16+00:00
+layout: post
+link: https://launchdarkly.com/blog/two-tales/
+slug: two-tales
+title: Two Tales
+wordpress_id: 193528
+categories:
+- DevOps
+tags:
+- ClearBrain
+- DevOps
+- Google Ads
+- SRE
+- test in production
+---
+
+In October we held a special Test in Production session. With a nod to Halloween, we cohosted an evening with [Honeycomb.io](http://Honeycomb.io) and invited speakers to share their scariest stories of operational outages and other horrors. While stories like these can be cringe-worthy, they are invaluable learning experiences.
+
+Eric Pollman, CTO and co-founder of ClearBrain and one of the original SREs at Google, shared two stories. First he spoke about how Google Ads went fully offline for 90+ minutes. Then he went on to talk about a zombie haunted pipeline that kept developers awake late into the night.
+
+
+<blockquote>“Given the theme of horror, wanted to really express how that, even in these kinds of situations no matter how cautious or clever we are as engineers, or as leaders of engineers these things are inevitable, and we can always learn from each other.” - Eric Pollman, CTO and co-founder of ClearBrain</blockquote>
+
+
+Watch the video below to learn how Eric’s teams survived these horrific events, and the lessons learned that will never be forgotten. If you’re interested in joining us at a future Meetup, you can [sign up here](https://www.meetup.com/Test-in-Production/).
+
+[embed]https://www.youtube.com/watch?v=a5mQePKXWLw[/embed]
+
+TRANSCRIPT
+
+Eric Pollmann: My name is Eric Pollmann, I amount a lifelong software engineer, currently the CTO and co-founder of ClearBrain, my co-founder Bilal right there in the back, and one of our teammates also, thanks for joining.
+
+So yeah, what I'd like to do given tonight's theme is share two brief tales, white knuckled adventures, if you will. Given the theme of horror, wanted to really express how that, even in these kinds of situations no matter how cautious of clever we are as engineers, or as leaders of engineers these things are inevitable, and we can always learn from each other.
+
+So the topic in general if right up my alley. Let me give you a brief introduction, in 1997 I moved out here to Silicon Valley, and I started working at Netscape, this is a web browser company, you might have heard of. The web browser has since gone on to be called Firefox. Hopefully you've tried it out, it's an amazing browser.
+
+And then after a brief stint as a software engineering manager at a small startup I went on to work at Google, where I joined this new nascent team called Site Reliability Engineering, and that teams goal is to be, as a previous speaker mentioned, the master of disaster for Google. We're responsible for keeping their services up and running, as well as scaling them to meet the demands of traffic.
+
+So a really interesting role for sure. I worked on that team for about seven years. I was the first hire on the ads team, and then grew with it to about 30 people, and then moved to Google Cloud, where I worked on the API server that front ends all of Googles API's, there's over 100 of them. It's a mind-numbing array of API's to manage. It's really fun there as well.
+
+And then more recently in the past few years, Bilal and I took this idea of democratizing machine learning and bringing it into the hands of marketers, to help them really understand their users, so that they can target users that are going to be most receptive to your message, and most likely to convert with their advertising, in a way that's guided by machine learning.
+
+So I'll start with a tale from the days of Google. I should probably do a costume change here, I'm wearing one of my old Google shirts, this one I'm really proud of., it says I have root at Google. I don't know if you're familiar with the concept of root, but this is like the admin ability.
+
+Speaker 2: Admin.
+
+Eric Pollmann: What's that.
+
+Speaker 2: Know your audience.
+
+Eric Pollmann: Yes. So yeah, so definitely ... Let me remind folks of the time, this was 2005, I was about a year into my career there. Google was this small-ish company, 2000 people, compared to today. My co-workers kept telling me that I should sign up for this newfangled site called the Facebook. I tried to sign up, but I wasn't allowed to because I'd been out of college for too long. I'm probably dating myself here, badly.
+
+Okay, so as the pager carriers for Google's advertising servicing, and I do mean pager carriers. Back in this day we had these small two way pagers, the Skytel pagers. If you've used them they're not like a modern day cell phone, it's like a tweet basically, of what is going on, to try to get context on what's happening.
+
+The pager I received was CPU overload. Now luckily this happened during the day time, during the week, and all of the developers for the team were right there beside me. But this kind of thing wasn't really too alarming, CPU overload happens all the time. Google's traffic is growing day after day, and it seemed, when I looked initially that some servers were crashing, again, not too alarming, this kind of thing happens from time to time.
+
+Looking a little deeper the reality was the servers were crashing, but it wasn't just some of them, it was all of the ad servers that were crashing. And the problem was when they crashed there is a daemon on the machine that brings the ad server back up, but the sever would immediately crash again. So they were not restarting. You can imagine this is a moment of panic, if you've been in this situation, we all know Silicon Valley graphs, they're supposed to go up and to the right. This one was not going up and to the right. This is not the actual graph, that's the stock market in 1932, but it felt like that.
+
+Yeah, so I pulled out my trusty slide rule and calculated availability here. I was trying to quickly work out how long did we have to solve this problem? Because it wasn't looking good, I'm going to be honest. Sorry, that should say ETA to 100% unavailability, typo. Unfortunately the answer was a little grim, it was 90 minutes. So we had about 90 minutes to solve the problem, figure out what is going on, come up with a solution, push the solution and get things working again.
+
+Luckily, even though this was the early days of Google, Google was a pretty sophisticated engineering environment to work in. They had world class engineering talent, they had amazing distributed systems that scaled. They had predominant monitoring across all of their servers. And not only that, they also deployed software in a pretty sane way, there was a release engineering team, and even in those early days they actually would frequently deploy features using flagged flips of software that had already been pushed long ago, so they could undeploy as well.
+
+The bad news was when we started investigating down this alley that wasn't what had happened, there was no recent software pushed, nobody had pushed any flags, nobody had pushed any binaries. So okay. So I need to escalate here, trying to get more people involved, could it have been a change in the traffic? This is something that happens in production services, maybe a new hacker is coming onto the site and found a way to take Google offline, and they're intentionally trying to bring down Google. This also happened, unfortunately, a couple of times over the years. And appropriately we would cal this internally a query of death, appropriately for tonight's theme. Because it would cause servers to crash immediately.
+
+The good thing about this kind of thing is if you can find the pattern you can stop the traffic from coming in at the layer above the server. So the servers are crashing when they have a special query, you just filter out that query above it, and all the good queries can continue through.
+
+The problem was we actually did find such a query, so we were able to go through the logs of the servers that had crashed, rescue them from the dead and look at their log files. The last query that was in each one of them had a similar pattern, and the pattern was a little suspicious, it wasn't something we'd seen before, it was for a very large search result. Unfortunately this was actually a very large fraction of our traffic, and it wasn't a hacker, this was actually a valid request, and it wasn't identical, there wasn't a single pattern that we could work out of how to stem this flow of traffic.
+
+So we decided that it wasn't a valid course of action to try to stem the bad queries. So good news, we got back to the software engineering team and they'd actually found a fix, they found that if they made a small change they could actually handle this particular pattern of query better and the server wouldn't actually crash. And so they were working furiously on it, and they estimated that code plus deployment would only take them a few hours, hopefully it would fix the problem.
+
+So if you remember the previous timeline we were working with, it was kind of like one of those moments where you realize that 100% unavailability is an inevitability. So if you can rewind yourself mentally to the first time you ever went down a rollercoaster, all the excitement and joy you had as you climbed the hill. That moment of expectation as you crest the hill of the rollercoaster, and then that one moment when you realize that this thing that you're strapped into is going down, and it's going down fast. That's actually my daughter, she's six in that picture, probably five, and that's actually her first rollercoaster ride. She didn't give me permission to show this picture, but it's so priceless.
+
+So the good news is the story has a happy ending, we were able to actually determine that a bad data push was what had caused the problem. Data push here is the servers didn't just algorithmically determine what ads to show, they actually needed to search through all of the available bids and ads that had been pushed into the system, and so we had to refresh that data in an ongoing way. And somehow the most recent push had some bad data in it, and when that data was scanned that was what was causing the servers to crash. Still, to this day, how the person who discovered this found it out, I don't know, I'm eternally grateful to them.
+
+But there were something like seven different continuous data pushes at the time and they correlated the time of that crash and the data push going out, and the servers that had crashed actually had just received the data push. The problem was as this is an ongoing data push that's automated we hadn't built a stop button for it. So as you can imagine you don't really want to roll back new ad bids that are coming in. So there wasn't a way to easily turn this off. And it was going out to all the servers incrementally, which was why we had that 90 minute timeline to work with.
+
+So no stop button, and fortunately no revert either, so you can't go back to the previous bids that you had just an hour ago and work with those. So we were a little bit scared. But, the team I worked with was a team comprised of some really amazing, talented system admins and developers as well, and the team immediately mobilized to solve the problem. I was part of the team as well, working on this problem, and we were typing furiously for the next 60 minutes, deploying scripts to undo the symlink that had been flipped and find the randomly named other symlink that should have been used instead, and then logging into the distribution server and killing the daemon and doing all this crazy stuff to finally get it to stop. And then finally the server started coming back online.
+
+So that breathtaking moment taught a few interesting lessons to me, one is success is not always success. So the data push actually did have logic in it to verify that the server could load the new data and didn't crash afterwards. But, what it didn't check is after that server had then gone on to serve many queries was it still alive? And so the interesting lesson there is to not just trust but a simple success metric will work, try to check many different disparate metrics, check liveness, check other stats, maybe check back in five more minutes to verify that things are still working.
+
+The second lesson is it's frequent for software engineers to think about reverting software, but less frequent to think about reverting data. And I think this was a case where a data revert plan would have been amazingly helpful. And then third, automate, automate, automate. We didn't really have a lot of automation on hand to go and undo the push, it would have been great to have a red button and a rewind button, effectively for scripts. So we had to do all that on the fly.
+
+The more you can think about these things and preplan the more helpful it is. Google has gone on to do disaster recovery training, they call it dirt exercises, where they will actually intentionally try to crash systems with different outlandish failure modes. It's engineers against engineers, kind of like adversarial competition to see who can take down or not take down the system. And so the systems are really bullet proof at this point. Again, as others, because I said I don't speak for Google obviously, I don't work there anymore, but really great lessons learned.
+
+And so I'll fast forward to 2016, which is the current run. I'll do this one super quick, because apparently I'm running long. So our mission at ClearBrain is really to help marketers make sense of billions of events, terabytes of data, millions of users and actually smart campaign management for them, to help them target the right users at the right time. As you can imagine this involves running very large pipeline jobs, often batch processing and usually late at night. So why would we do it late at night? The reason we do it late at night is because it's cheaper and because it's timely in that we can have fresh insights available when the customer comes into work, and when their users start using their product early in the morning they'll have fresh models.
+
+As many things that happen late at night, sometimes they go bump, and sometimes they come back. They go bump, and they go bump again. In this case I'll call it our zombie pipeline. And what we went through was every data exception imaginable. So the data we're working with, of course, as you know, is never clean, you'll see things in it that are just wacky, like dates from 5000BC, 7000 years ago, Unicode characters that don't make sense, incompatible quoting and CSB's between two different systems and things that aren't even really data related, like jobs that die because they ran out of memory, spun instances not allocating on AWS, customer data warehouses being offline when we need to reach them, incompatible customer schema changes, and on, and on, and on, and on, you get the idea.
+
+But before I go on and try to tell you the lessons learned here, I wanted to point out the silver lining is our torment was our customers peace of mind actually here. We were able to provide for them a relatively seamless experience, even though we were frantically fixing these problems as we went through the learning over the years, and they were able to actually run their systems on top of this.
+
+So there is a value add, even though it's a little painful. And the other silver lining is having gone through this for two years now we have a little bit more robust system that doesn't fail like this quite as often. Of course, it does, sometimes, otherwise what fun would it be? And so this is really, I think, a learning experience that helped us grow as a company.
+
+And so the lessons learned here are, for me, when testing a production it's useful to consider the human beings hours, like when is it actually humane to actually be awake? Not at 02:00 in the morning. Although extra testing can go a long way, and what we ended up doing was building a staging system which is very much identical to our production system. So people had said it would be nice if Amazon had that staging system, we have one of those now, we run real production data through it and verify that pipelines that will execute successfully.
+
+And we were really fortunate, at the time it was two relatively small teams, and we were co-located in the same building, and it was also during the day time. So a little cheat answer here, but we basically just crowded around people's desks and we were running back and forth. It was actually a pretty frantic moment, but everybody was basically aware of what was going on, and there was a lot of high bandwidth communication going on.
+
+Sometimes things like this would happen at night, and there'd be phone calls and there would be chat rooms and things like that going on. But coordination is pretty key, and I think it was really key to our story of success that we were co-located with the engineering teams over the years.
+
+It took us 90 minutes to put on the brakes, effectively. So, that the server stopped crashing. A little less, because we were able to actually avoid almost all unavailability. We actually analyzed afterwards the notch in the graph of queries that were served, and calculated the area of it, it was less than we had feared, but then it did take a few hours to actually write the software fixes for it, luckily the system was paused at that time, so we were able to have a little breathing room.
+
+All right, thanks everybody.

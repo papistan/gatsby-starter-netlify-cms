@@ -1,0 +1,41 @@
+---
+author: az
+comments: false
+date: 2017-06-02 11:00:02+00:00
+layout: post
+link: https://launchdarkly.com/blog/week-n1/
+slug: week-n1
+title: Week n+1
+wordpress_id: 1610
+categories:
+- Team &amp; News
+tags:
+- continuous delivery
+- Enterprise
+- feature flag
+- LaunchDarkly
+- microservices
+---
+
+_Start? This is just the next step in the journey (image credit: [Andrew Lipson](http://www.andrewlipson.com/escher/ascending.html))_
+
+
+I recently wrapped up my first official full week at LaunchDarkly. Although, I’ve been working with the team as an advisor/consultant for a number of months. Over the past year I have been advising and consulting with various start-ups looking for a good fit. I would often remark to folks that I was “company dating.” 
+
+[![](http://i.imgur.com/U3TeHFT.gif)](https://blog.launchdarkly.com/wp-content/uploads/2017/05/lego-tinder.gif)
+
+
+_More like introductions from friends than tinder. (Photo credit: Reddit [post](https://www.reddit.com/user/moleclair))_
+
+
+Honestly, I have very little dating experience. My wife and I met my 2nd (her 1st) year in college and haven’t looked back. Similar on the job side, I started at EMC a year after graduating and then was the first internal transfer to VMware. For almost 15 years I enjoyed the stability and resources of a large company. But, then I started to feel the need to grow and participate in the changing landscape I saw in software development trends. 
+
+Since leaving VMware I have spent a lot of time thinking about the gap between the old school development frameworks (e.g. waterfall) and newer practices (e.g. agile, scrum, continuous deployment). Tools like git, continuous integration, and automation have radically changed _how_ we release. At EMC and VMware we measured our releases in years, or sometimes months (the same way a parent refers to their 22 month-old toddler). Compared to GitHub where we released multiple times a day. 
+
+
+[![](https://blog.launchdarkly.com/wp-content/uploads/2017/05/lego-oldman-300x300.jpg)](https://blog.launchdarkly.com/wp-content/uploads/2017/05/lego-oldman.jpg)_This whole cloud thing is likely just a fad. (Photo credit: [Twitter](https://twitter.com/slowbiex/status/468132520354402305))_
+
+
+Recently, I’ve started to bucket these tools into three phases of for software development: Concept, Launch, and Control. I’m working on a blog series to discuss each of these in-depth, but this framework is what got me excited about LaunchDarkly. Feature management, while not the shiniest tool, provides the foundation for eliminating risk and delivering value as teams push to move faster _and_ to be more reliable. 
+
+In addition to my passion for our product, this intelligent team, my carless commute, I did have one additional objective: to be a part of a diverse and equitable company. Not simply an organization that accepts diversity, but one that actively pursues a more diverse and inclusive team as a imperative for building better products and services. So far a great start to my next long-term relationship.
